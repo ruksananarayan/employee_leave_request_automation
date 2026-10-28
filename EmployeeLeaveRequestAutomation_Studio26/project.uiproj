@@ -1,0 +1,6 @@
+{
+  "Name": "EmployeeLeaveRequestAutomation_Studio26",
+  "ProjectType": "Process",
+  "Description": "Production-style employee leave request validation, decisioning, reporting, and notification automation.",
+  "MainFile": "Main.xaml"
+}

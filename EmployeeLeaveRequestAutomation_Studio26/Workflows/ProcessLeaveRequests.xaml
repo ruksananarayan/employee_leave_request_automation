@@ -1,0 +1,148 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Workflows_ProcessLeaveRequests" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_dtInput" Type="InArgument(sd:DataTable)" />
+    <x:Property Name="in_configText" Type="InArgument(x:String)" />
+    <x:Property Name="out_dtResults" Type="OutArgument(sd:DataTable)" />
+    <x:Property Name="out_processedCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_errorCount" Type="OutArgument(x:Int32)" />
+  </x:Members>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Linq</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Primitives</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.IO</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime.InteropServices</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Workflows_ProcessLeaveRequests Sequence" sap:VirtualizedContainerService.HintSize="639.6,1077.6" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="sd:DataTable" Name="dtResults" />
+      <Variable x:TypeArguments="x:String" Default="|" Name="seenRequestIDs" />
+      <Variable x:TypeArguments="x:String" Name="nextSeenRequestIDs" />
+      <Variable x:TypeArguments="x:String" Name="status" />
+      <Variable x:TypeArguments="x:String" Name="reason" />
+      <Variable x:TypeArguments="x:Int32" Name="calculatedDays" />
+      <Variable x:TypeArguments="x:Boolean" Name="managerRequired" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="out_dtResults = New DataTable()&#xA;Dim names = New String() {&quot;RequestID&quot;, &quot;EmployeeID&quot;, &quot;EmployeeName&quot;, &quot;Email&quot;, &quot;Department&quot;, &quot;LeaveType&quot;, &quot;StartDate&quot;, &quot;EndDate&quot;, &quot;TotalDays&quot;, &quot;Reason&quot;, &quot;AnnualLeaveBalance&quot;, &quot;ManagerEmail&quot;, &quot;CalculatedDays&quot;, &quot;Status&quot;, &quot;DecisionReason&quot;, &quot;ProcessedDate&quot;, &quot;NotificationStatus&quot;, &quot;NotificationError&quot;}&#xA;For Each name In names&#xA;    out_dtResults.Columns.Add(name, GetType(String))&#xA;Next" DisplayName="Initialize Result Schema" sap:VirtualizedContainerService.HintSize="451.2,400.8" sap2010:WorkflowViewState.IdRef="InvokeCode_1">
+      <ui:InvokeCode.Arguments>
+        <OutArgument x:TypeArguments="sd:DataTable" x:Key="out_dtResults">[dtResults]</OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[in_dtInput]" DisplayName="Process Each Leave Request" sap:VirtualizedContainerService.HintSize="451.2,261.6" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+      <ui:ForEachRow.Body>
+        <ActivityAction x:TypeArguments="sd:DataRow">
+          <ActivityAction.Argument>
+            <DelegateInArgument x:TypeArguments="sd:DataRow" Name="CurrentRow" />
+          </ActivityAction.Argument>
+          <Sequence DisplayName="Row Transaction" sap:VirtualizedContainerService.HintSize="449.6,80" sap2010:WorkflowViewState.IdRef="Sequence_2">
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <TryCatch DisplayName="Row-Level Transaction" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+              <TryCatch.Try>
+                <Sequence DisplayName="Try" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                  <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="Validate Current Request" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="Workflows\ValidateLeaveRequest.xaml">
+                    <ui:InvokeWorkflowFile.Arguments>
+                      <InArgument x:TypeArguments="sd:DataRow" x:Key="in_row">[CurrentRow]</InArgument>
+                      <InArgument x:TypeArguments="x:String" x:Key="in_seenRequestIDs">[seenRequestIDs]</InArgument>
+                      <InArgument x:TypeArguments="x:String" x:Key="in_configText">[in_configText]</InArgument>
+                      <OutArgument x:TypeArguments="x:String" x:Key="out_seenRequestIDs">[nextSeenRequestIDs]</OutArgument>
+                      <OutArgument x:TypeArguments="x:String" x:Key="out_status">[status]</OutArgument>
+                      <OutArgument x:TypeArguments="x:String" x:Key="out_reason">[reason]</OutArgument>
+                      <OutArgument x:TypeArguments="x:Int32" x:Key="out_calculatedDays">[calculatedDays]</OutArgument>
+                      <OutArgument x:TypeArguments="x:Boolean" x:Key="out_managerRequired">[managerRequired]</OutArgument>
+                    </ui:InvokeWorkflowFile.Arguments>
+                  </ui:InvokeWorkflowFile>
+                  <Assign DisplayName="Update Seen Request IDs" sap2010:WorkflowViewState.IdRef="Assign_1">
+                    <Assign.To>
+                      <OutArgument x:TypeArguments="x:String">[seenRequestIDs]</OutArgument>
+                    </Assign.To>
+                    <Assign.Value>
+                      <InArgument x:TypeArguments="x:String">[nextSeenRequestIDs]</InArgument>
+                    </Assign.Value>
+                  </Assign>
+                  <ui:AddDataRow DataRow="{x:Null}" ArrayRow="[New Object() {If(CurrentRow.IsNull(&quot;RequestID&quot;), &quot;&quot;, CurrentRow(&quot;RequestID&quot;).ToString()), If(CurrentRow.IsNull(&quot;EmployeeID&quot;), &quot;&quot;, CurrentRow(&quot;EmployeeID&quot;).ToString()), If(CurrentRow.IsNull(&quot;EmployeeName&quot;), &quot;&quot;, CurrentRow(&quot;EmployeeName&quot;).ToString()), If(CurrentRow.IsNull(&quot;Email&quot;), &quot;&quot;, CurrentRow(&quot;Email&quot;).ToString()), If(CurrentRow.IsNull(&quot;Department&quot;), &quot;&quot;, CurrentRow(&quot;Department&quot;).ToString()), If(CurrentRow.IsNull(&quot;LeaveType&quot;), &quot;&quot;, CurrentRow(&quot;LeaveType&quot;).ToString()), If(CurrentRow.IsNull(&quot;StartDate&quot;), &quot;&quot;, CurrentRow(&quot;StartDate&quot;).ToString()), If(CurrentRow.IsNull(&quot;EndDate&quot;), &quot;&quot;, CurrentRow(&quot;EndDate&quot;).ToString()), If(CurrentRow.IsNull(&quot;TotalDays&quot;), &quot;&quot;, CurrentRow(&quot;TotalDays&quot;).ToString()), If(CurrentRow.IsNull(&quot;Reason&quot;), &quot;&quot;, CurrentRow(&quot;Reason&quot;).ToString()), If(CurrentRow.IsNull(&quot;AnnualLeaveBalance&quot;), &quot;&quot;, CurrentRow(&quot;AnnualLeaveBalance&quot;).ToString()), If(CurrentRow.IsNull(&quot;ManagerEmail&quot;), &quot;&quot;, CurrentRow(&quot;ManagerEmail&quot;).ToString()), calculatedDays.ToString(), status, reason, DateTime.Now.ToString(&quot;yyyy-MM-dd HH:mm:ss&quot;), &quot;Pending Notification&quot;, &quot;&quot;}]" DataTable="[dtResults]" DisplayName="Append Decision Result" sap2010:WorkflowViewState.IdRef="AddDataRow_1" />
+                </Sequence>
+              </TryCatch.Try>
+              <TryCatch.Catches>
+                <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_1">
+                  <ActivityAction x:TypeArguments="s:Exception">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+                    </ActivityAction.Argument>
+                    <Sequence DisplayName="Catch" sap2010:WorkflowViewState.IdRef="Sequence_4">
+                      <Assign DisplayName="Set Row Error Status" sap2010:WorkflowViewState.IdRef="Assign_2">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:String">[status]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:String">["Error"]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                      <Assign DisplayName="Set Row Error Reason" sap2010:WorkflowViewState.IdRef="Assign_3">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:String">[reason]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:String">["Unexpected row-level exception: " &amp; exception.Message]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                      <Assign DisplayName="Reset Row Calculated Days" sap2010:WorkflowViewState.IdRef="Assign_4">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Int32">[calculatedDays]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Int32">[0]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                      <ui:AddDataRow DataRow="{x:Null}" ArrayRow="[New Object() {If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;RequestID&quot;), &quot;&quot;, CurrentRow(&quot;RequestID&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;EmployeeID&quot;), &quot;&quot;, CurrentRow(&quot;EmployeeID&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;EmployeeName&quot;), &quot;&quot;, CurrentRow(&quot;EmployeeName&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;Email&quot;), &quot;&quot;, CurrentRow(&quot;Email&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;Department&quot;), &quot;&quot;, CurrentRow(&quot;Department&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;LeaveType&quot;), &quot;&quot;, CurrentRow(&quot;LeaveType&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;StartDate&quot;), &quot;&quot;, CurrentRow(&quot;StartDate&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;EndDate&quot;), &quot;&quot;, CurrentRow(&quot;EndDate&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;TotalDays&quot;), &quot;&quot;, CurrentRow(&quot;TotalDays&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;Reason&quot;), &quot;&quot;, CurrentRow(&quot;Reason&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;AnnualLeaveBalance&quot;), &quot;&quot;, CurrentRow(&quot;AnnualLeaveBalance&quot;).ToString()), If(CurrentRow Is Nothing OrElse CurrentRow.IsNull(&quot;ManagerEmail&quot;), &quot;&quot;, CurrentRow(&quot;ManagerEmail&quot;).ToString()), &quot;0&quot;, status, reason, DateTime.Now.ToString(&quot;yyyy-MM-dd HH:mm:ss&quot;), &quot;Skipped - Error status&quot;, exception.ToString()}]" DataTable="[dtResults]" DisplayName="Append Error Result" sap2010:WorkflowViewState.IdRef="AddDataRow_2" />
+                    </Sequence>
+                  </ActivityAction>
+                </Catch>
+              </TryCatch.Catches>
+            </TryCatch>
+          </Sequence>
+        </ActivityAction>
+      </ui:ForEachRow.Body>
+    </ui:ForEachRow>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="out_dtResults = dtResults&#xA;out_processedCount = If(dtResults Is Nothing, 0, dtResults.Rows.Count)&#xA;out_errorCount = If(dtResults Is Nothing, 0, dtResults.AsEnumerable().Count(Function(r) r(&quot;Status&quot;).ToString() = &quot;Error&quot;))" DisplayName="Count Decisions" sap:VirtualizedContainerService.HintSize="451.2,392" sap2010:WorkflowViewState.IdRef="InvokeCode_2">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="sd:DataTable" x:Key="dtResults">[dtResults]</InArgument>
+        <OutArgument x:TypeArguments="sd:DataTable" x:Key="out_dtResults">[out_dtResults]</OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_processedCount">[out_processedCount]</OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_errorCount">[out_errorCount]</OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

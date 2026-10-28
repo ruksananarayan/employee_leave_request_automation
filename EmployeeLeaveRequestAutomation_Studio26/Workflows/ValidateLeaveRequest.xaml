@@ -1,0 +1,70 @@
+<Activity mc:Ignorable="sap2010" x:Class="Workflows_ValidateLeaveRequest" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_row" Type="InArgument(sd:DataRow)" />
+    <x:Property Name="in_seenRequestIDs" Type="InArgument(x:String)" />
+    <x:Property Name="in_configText" Type="InArgument(x:String)" />
+    <x:Property Name="out_seenRequestIDs" Type="OutArgument(x:String)" />
+    <x:Property Name="out_status" Type="OutArgument(x:String)" />
+    <x:Property Name="out_reason" Type="OutArgument(x:String)" />
+    <x:Property Name="out_calculatedDays" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_managerRequired" Type="OutArgument(x:Boolean)" />
+  </x:Members>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Security</x:String>
+      <x:String>System.Text</x:String>
+      <x:String>System.Text.RegularExpressions</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>GlobalVariablesT1PNoYwrqg</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.IO</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime.InteropServices</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Workflows_ValidateLeaveRequest Sequence" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="Dim cfg As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)&#xA;If in_configText IsNot Nothing Then&#xA;    For Each part In in_configText.Split(&quot;|&quot;c)&#xA;        Dim p = part.IndexOf(&quot;=&quot;c)&#xA;        If p &gt; 0 Then cfg(part.Substring(0, p)) = part.Substring(p + 1)&#xA;    Next&#xA;End If&#xA;Dim Cell = Function(column As String) As String&#xA;    If in_row Is Nothing OrElse Not in_row.Table.Columns.Contains(column) OrElse in_row.IsNull(column) Then Return &quot;&quot;&#xA;    Return in_row(column).ToString().Trim()&#xA;End Function&#xA;out_status = &quot;Rejected&quot;&#xA;out_reason = &quot;&quot;&#xA;out_calculatedDays = 0&#xA;out_managerRequired = False&#xA;Dim requestId = Cell(&quot;RequestID&quot;)&#xA;Dim mandatory = New String() {&quot;RequestID&quot;, &quot;EmployeeID&quot;, &quot;EmployeeName&quot;, &quot;Email&quot;, &quot;LeaveType&quot;, &quot;StartDate&quot;, &quot;EndDate&quot;, &quot;TotalDays&quot;}&#xA;For Each name In mandatory&#xA;    If Cell(name) = &quot;&quot; Then&#xA;        out_reason = &quot;Missing mandatory field: &quot; &amp; name&#xA;        out_seenRequestIDs = If(in_seenRequestIDs, &quot;&quot;)&#xA;        Return&#xA;    End If&#xA;Next&#xA;Dim seen = If(in_seenRequestIDs, &quot;&quot;)&#xA;If seen.IndexOf(&quot;|&quot; &amp; requestId &amp; &quot;|&quot;, StringComparison.OrdinalIgnoreCase) &gt;= 0 Then&#xA;    out_reason = &quot;Duplicate RequestID: &quot; &amp; requestId&#xA;    out_seenRequestIDs = seen&#xA;    Return&#xA;End If&#xA;out_seenRequestIDs = seen &amp; requestId &amp; &quot;|&quot;&#xA;If Not Regex.IsMatch(Cell(&quot;Email&quot;), &quot;^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$&quot;) Then&#xA;    out_reason = &quot;Invalid employee email format&quot;&#xA;    Return&#xA;End If&#xA;Dim leaveType = Cell(&quot;LeaveType&quot;)&#xA;If Not New String() {&quot;Annual&quot;, &quot;Sick&quot;, &quot;Casual&quot;, &quot;Unpaid&quot;}.Contains(leaveType, StringComparer.OrdinalIgnoreCase) Then&#xA;    out_reason = &quot;Invalid leave type: &quot; &amp; leaveType&#xA;    Return&#xA;End If&#xA;Dim startDate As DateTime&#xA;Dim endDate As DateTime&#xA;If Not DateTime.TryParseExact(Cell(&quot;StartDate&quot;), &quot;yyyy-MM-dd&quot;, CultureInfo.InvariantCulture, DateTimeStyles.None, startDate) Then&#xA;    out_reason = &quot;Invalid or unparseable StartDate&quot;&#xA;    Return&#xA;End If&#xA;If Not DateTime.TryParseExact(Cell(&quot;EndDate&quot;), &quot;yyyy-MM-dd&quot;, CultureInfo.InvariantCulture, DateTimeStyles.None, endDate) Then&#xA;    out_reason = &quot;Invalid or unparseable EndDate&quot;&#xA;    Return&#xA;End If&#xA;If startDate.Date &gt; endDate.Date Then&#xA;    out_reason = &quot;StartDate must not be later than EndDate&quot;&#xA;    Return&#xA;End If&#xA;Dim allowPast = False&#xA;Boolean.TryParse(If(cfg.ContainsKey(&quot;AllowPastDates&quot;), cfg(&quot;AllowPastDates&quot;), &quot;False&quot;), allowPast)&#xA;If Not allowPast AndAlso startDate.Date &lt; DateTime.Today Then&#xA;    out_reason = &quot;Past-dated leave is not allowed by configuration&quot;&#xA;    Return&#xA;End If&#xA;Dim holidays As New HashSet(Of DateTime)&#xA;Dim holidayText = If(cfg.ContainsKey(&quot;HolidayDates&quot;), cfg(&quot;HolidayDates&quot;), &quot;&quot;)&#xA;For Each h In holidayText.Split(&quot;;&quot;c)&#xA;    Dim holiday As DateTime&#xA;    If DateTime.TryParseExact(h.Trim(), &quot;yyyy-MM-dd&quot;, CultureInfo.InvariantCulture, DateTimeStyles.None, holiday) Then holidays.Add(holiday.Date)&#xA;Next&#xA;Dim cursor = startDate.Date&#xA;While cursor &lt;= endDate.Date&#xA;    If cursor.DayOfWeek &lt;&gt; DayOfWeek.Saturday AndAlso cursor.DayOfWeek &lt;&gt; DayOfWeek.Sunday AndAlso Not holidays.Contains(cursor.Date) Then out_calculatedDays += 1&#xA;    cursor = cursor.AddDays(1)&#xA;End While&#xA;If out_calculatedDays &lt;= 0 Then&#xA;    out_reason = &quot;Requested range contains no working days&quot;&#xA;    Return&#xA;End If&#xA;Dim submittedDays As Integer&#xA;If Not Integer.TryParse(Cell(&quot;TotalDays&quot;), submittedDays) Then&#xA;    out_reason = &quot;TotalDays is not a valid integer&quot;&#xA;    Return&#xA;End If&#xA;If submittedDays &lt;&gt; out_calculatedDays Then&#xA;    out_reason = &quot;Submitted TotalDays does not match calculated working days&quot;&#xA;    Return&#xA;End If&#xA;If leaveType.Equals(&quot;Annual&quot;, StringComparison.OrdinalIgnoreCase) Then&#xA;    Dim balance As Integer&#xA;    If Not Integer.TryParse(Cell(&quot;AnnualLeaveBalance&quot;), balance) Then&#xA;        out_reason = &quot;AnnualLeaveBalance is not a valid integer&quot;&#xA;        Return&#xA;    End If&#xA;    If out_calculatedDays &gt; balance Then&#xA;        out_reason = &quot;Requested working days exceed AnnualLeaveBalance&quot;&#xA;        Return&#xA;    End If&#xA;End If&#xA;Dim threshold As Integer = 0&#xA;Integer.TryParse(If(cfg.ContainsKey(&quot;ApprovalThreshold&quot;), cfg(&quot;ApprovalThreshold&quot;), &quot;0&quot;), threshold)&#xA;If out_calculatedDays &gt; threshold Then&#xA;    out_managerRequired = True&#xA;    If Cell(&quot;ManagerEmail&quot;) = &quot;&quot; Then&#xA;        out_status = &quot;Error&quot;&#xA;        out_reason = &quot;Manager email is missing for approval-required request&quot;&#xA;    Else&#xA;        out_status = &quot;Pending Manager Approval&quot;&#xA;        out_reason = &quot;Request exceeds automatic approval threshold&quot;&#xA;    End If&#xA;Else&#xA;    out_status = &quot;Approved&quot;&#xA;    out_reason = &quot;All configured validation rules passed&quot;&#xA;End If" DisplayName="Validate Leave Request" sap2010:WorkflowViewState.IdRef="InvokeCode_1">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="sd:DataRow" x:Key="in_row">[in_row]</InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_seenRequestIDs">[in_seenRequestIDs]</InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_configText">[in_configText]</InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_seenRequestIDs">[out_seenRequestIDs]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_status">[out_status]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_reason">[out_reason]</OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_calculatedDays">[out_calculatedDays]</OutArgument>
+        <OutArgument x:TypeArguments="x:Boolean" x:Key="out_managerRequired">[out_managerRequired]</OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

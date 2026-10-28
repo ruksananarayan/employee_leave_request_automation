@@ -1,0 +1,55 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Workflows_ReadLeaveRequests" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib"
+ xmlns:ui="clr-namespace:UiPath.Core.Activities;assembly=UiPath.System.Activities"
+ xmlns:uea="clr-namespace:UiPath.Excel.Activities;assembly=UiPath.Excel.Activities"
+ xmlns:smtp="clr-namespace:UiPath.Mail.SMTP.Activities;assembly=UiPath.Mail.Activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String><x:String>System.Activities</x:String><x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String><x:String>System.Collections.Generic</x:String><x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String><x:String>System.Diagnostics</x:String><x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String><x:String>System.Linq</x:String><x:String>System.Net.Mail</x:String>
+      <x:String>System.Security</x:String><x:String>System.Text</x:String><x:String>System.Text.RegularExpressions</x:String>
+      <x:String>UiPath.Core</x:String><x:String>UiPath.Core.Activities</x:String><x:String>GlobalVariablesNamespace</x:String><x:String>GlobalConstantsNamespace</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference><AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference><AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference><AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference><AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.IO</AssemblyReference><AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference><AssemblyReference>UiPath.Excel.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Mail.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>  <x:Members>
+    <x:Property Name="in_InputPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_SheetName" Type="InArgument(x:String)" />
+    <x:Property Name="out_dtInput" Type="OutArgument(sd:DataTable)" />
+    <x:Property Name="out_SchemaValid" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="out_SchemaReason" Type="OutArgument(x:String)" />
+  </x:Members>
+  <Sequence DisplayName="Workflows_ReadLeaveRequests Sequence" sap2010:WorkflowViewState.IdRef="Sequence_1">
+  <Sequence.Variables><Variable x:TypeArguments="sd:DataTable" Name="dtInput" /></Sequence.Variables>
+  <uea:ReadRange DisplayName="Read Leave Requests" sap2010:WorkflowViewState.IdRef="ReadRange_1" WorkbookPath="[in_InputPath]" SheetName="[in_SheetName]" Range="" AddHeaders="True" DataTable="[dtInput]" />
+  <Assign DisplayName="Expose Input DataTable" sap2010:WorkflowViewState.IdRef="Assign_1"><Assign.To><OutArgument x:TypeArguments="sd:DataTable"><VisualBasicReference x:TypeArguments="sd:DataTable" ExpressionText="out_dtInput" /></OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="sd:DataTable"><VisualBasicValue x:TypeArguments="sd:DataTable" ExpressionText="dtInput" /></InArgument></Assign.Value></Assign>
+  <ui:InvokeCode DisplayName="Validate Input Schema" Language="VBNet" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Code="Dim required = New String() {&quot;RequestID&quot;, &quot;EmployeeID&quot;, &quot;EmployeeName&quot;, &quot;Email&quot;, &quot;Department&quot;, &quot;LeaveType&quot;, &quot;StartDate&quot;, &quot;EndDate&quot;, &quot;TotalDays&quot;, &quot;Reason&quot;, &quot;AnnualLeaveBalance&quot;, &quot;ManagerEmail&quot;}&#xA;out_SchemaValid = True&#xA;out_SchemaReason = &quot;Schema OK&quot;&#xA;If dtInput Is Nothing OrElse dtInput.Columns.Count = 0 Then&#xA;    out_SchemaValid = False&#xA;    out_SchemaReason = &quot;Input workbook is empty&quot;&#xA;Else&#xA;    For Each name In required&#xA;        If Not dtInput.Columns.Contains(name) Then&#xA;            out_SchemaValid = False&#xA;            out_SchemaReason = &quot;Missing required column: &quot; &amp; name&#xA;            Exit For&#xA;        End If&#xA;    Next&#xA;End If">
+    <ui:InvokeCode.Arguments>
+      <scg:Dictionary x:TypeArguments="x:String, Argument">
+        <InArgument x:TypeArguments="sd:DataTable" x:Key="dtInput">[dtInput]</InArgument>
+        <OutArgument x:TypeArguments="x:Boolean" x:Key="out_SchemaValid">[out_SchemaValid]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_SchemaReason">[out_SchemaReason]</OutArgument>
+      </scg:Dictionary>
+    </ui:InvokeCode.Arguments>
+  </ui:InvokeCode>
+  </Sequence>
+</Activity>

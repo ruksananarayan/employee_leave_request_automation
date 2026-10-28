@@ -1,0 +1,53 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Workflows_InitializeConfig" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib"
+ xmlns:ui="clr-namespace:UiPath.Core.Activities;assembly=UiPath.System.Activities"
+ xmlns:uea="clr-namespace:UiPath.Excel.Activities;assembly=UiPath.Excel.Activities"
+ xmlns:smtp="clr-namespace:UiPath.Mail.SMTP.Activities;assembly=UiPath.Mail.Activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String><x:String>Microsoft.VisualBasic</x:String><x:String>System.Activities</x:String><x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String><x:String>System.Collections.Generic</x:String><x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String><x:String>System.Diagnostics</x:String><x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String><x:String>System.Linq</x:String><x:String>System.Net.Mail</x:String>
+      <x:String>System.Security</x:String><x:String>System.Text</x:String><x:String>System.Text.RegularExpressions</x:String>
+      <x:String>UiPath.Core</x:String><x:String>UiPath.Core.Activities</x:String><x:String>GlobalVariablesNamespace</x:String><x:String>GlobalConstantsNamespace</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference><AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference><AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference><AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference><AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.IO</AssemblyReference><AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference><AssemblyReference>UiPath.Excel.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Mail.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>  <x:Members>
+    <x:Property Name="in_ConfigPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_SheetName" Type="InArgument(x:String)" />
+    <x:Property Name="out_ConfigText" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Status" Type="OutArgument(x:String)" />
+  </x:Members>
+  <Sequence DisplayName="Workflows_InitializeConfig Sequence" sap2010:WorkflowViewState.IdRef="Sequence_1">
+  <Sequence.Variables><Variable x:TypeArguments="sd:DataTable" Name="dtConfig" /></Sequence.Variables>
+  <uea:ReadRange DisplayName="Read Config Workbook" sap2010:WorkflowViewState.IdRef="ReadRange_1" WorkbookPath="[in_ConfigPath]" SheetName="[in_SheetName]" Range="" AddHeaders="True" DataTable="[dtConfig]" />
+  <ui:InvokeCode DisplayName="Normalize Configuration" Language="VBNet" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Code="Dim config As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)&#xA;If dtConfig Is Nothing OrElse dtConfig.Columns.Count &lt; 2 Then&#xA;    out_ConfigText = &quot;&quot;&#xA;    out_Status = &quot;Error - Config workbook is empty or missing Key/Value columns&quot;&#xA;Else&#xA;    For Each r As DataRow In dtConfig.Rows&#xA;        If Not r.IsNull(0) Then&#xA;            Dim key = r(0).ToString().Trim()&#xA;            Dim value = If(r.IsNull(1), &quot;&quot;, r(1).ToString().Trim())&#xA;            If key &lt;&gt; &quot;&quot; Then config(key) = value&#xA;        End If&#xA;    Next&#xA;    Dim parts As New List(Of String)&#xA;    For Each pair In config&#xA;        parts.Add(pair.Key &amp; &quot;=&quot; &amp; pair.Value.Replace(&quot;|&quot;, &quot; &quot;).Replace(vbCr, &quot; &quot;).Replace(vbLf, &quot; &quot;))&#xA;    Next&#xA;    out_ConfigText = String.Join(&quot;|&quot;, parts)&#xA;    out_Status = &quot;OK - &quot; &amp; config.Count.ToString() &amp; &quot; configuration keys loaded&quot;&#xA;End If">
+    <ui:InvokeCode.Arguments>
+      <scg:Dictionary x:TypeArguments="x:String, Argument">
+        <InArgument x:TypeArguments="sd:DataTable" x:Key="dtConfig">[dtConfig]</InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_ConfigText">[out_ConfigText]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Status">[out_Status]</OutArgument>
+      </scg:Dictionary>
+    </ui:InvokeCode.Arguments>
+  </ui:InvokeCode>
+  </Sequence>
+</Activity>
